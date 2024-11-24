@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Default Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .slider-container {
+            margin: 20px 0;
+        }
+        .advice {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px solid #007BFF;
+            border-radius: 5px;
+            background-color: #E9F7FF;
+            font-weight: bold;
+            color: #0056b3;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        #applyButton {
+            display: none;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #applyButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Loan Default Prediction</h1>
+    <div id="sliders"></div>
+    <h2>Prediction Default: <span id="predictionDefault">0</span></h2>
+    <div class="advice" id="advice"></div>
+    <div class="wp-block-button">
+        <a id="applyButton" class="wp-block-button__link wp-element-button" href="https://www.sbfinance.com.ph/esalad-loan/" target="_blank" rel="noreferrer noopener" onclick="return validatePrediction()">APPLY</a>
+    </div>
+    <script>
+        const sliderData = [
+            { id: 'assets', label: 'Assets' },
+            { id: 'householdGrade', label: 'Household Grade' },
+            { id: 'totalExpenditures', label: 'Total Expenditures' },
+            { id: 'totalIncome', label: 'Total Income' },
+            { id: 'debtToIncome', label: 'Debt To Income' }
+        ];
+
+        const coeffs = {
+            adverseFindings: 0.127,
+            householdGrade: 0.103,
+            expenditures: 0.683,
+            income: 0.278,
+            debtToIncome: 1.111,
+            adverseFindingsImpact: -0.05,
+            marginalPropensityImpact: -0.223
+        };
+
+        function createSlider(slider) {
+            const container = document.createElement('div');
+            container.className = 'slider-container';
+            const label = document.createElement('label');
+            label.htmlFor = slider.id;
+            label.innerText = `${slider.label}:`;
+            container.appendChild(label);
+            const input = document.createElement('input');
+            input.type = 'range';
+            input.id = slider.id;
+            input.name = slider.id;
+            input.min = 0;
+            input.max = 100;
+            input.value = 50;
+            input.oninput = updatePrediction;
+            container.appendChild(input);
+            const span = document.createElement('span');
+            span.id = `${slider.id}Value`;
+            span.innerText = '50';
+            container.appendChild(span);
+            document.getElementById('sliders').appendChild(container);
+        }
+
+        function updatePrediction() {
+            const values = sliderData.reduce((acc, slider) => {
+                const value = parseFloat(document.getElementById(slider.id).value);
+                document.getElementById(`${slider.id}Value`).innerText = value;
+                acc[slider.id] = value;
+                return acc;
+            }, {});
+
+            const adverseFindings = coeffs.adverseFindings * values.assets + coeffs.householdGrade * values.householdGrade;
+            const marginalPropensityToSave = coeffs.expenditures * values.totalExpenditures + coeffs.income * values.totalIncome;
+            const predictionDefault = coeffs.adverseFindingsImpact * adverseFindings + coeffs.debtToIncome * values.debtToIncome + coeffs.marginalPropensityImpact * marginalPropensityToSave;
+
+            document.getElementById('predictionDefault').innerText = predictionDefault.toFixed(2);
+
+            let advice = "";
+            const applyButton = document.getElementById('applyButton');
+            if (predictionDefault > 50) {
+                advice = "A score of 50 and above, loan is not recommended. Before you apply for a loan, budget your expenses, bring it down to basics, and find a co-maker. Click the Pay Loans button to start paying off debts.";
+                applyButton.style.display = 'block';
+            } else if (predictionDefault > 30) {
+                advice = " A score of 30 to 49 will recommend planning your budget before applying for a loan. Plan for expense budget before you file for a salary loan.";
+                applyButton.style.display = 'none';
+            } else if (predictionDefault <= 0) {
+                advice = "Are you sure you have zero income and expenses? If not, slide the button to get the right prediction.";
+                applyButton.style.display = 'none';
+            } else {
+                advice = "A score of 30 below means you can apply for a salary loan. File your salary loan with SB Finance. Click Apply button.";
+                applyButton.style.display = 'block';
+            }
+            document.getElementById('advice').innerText = advice;
+        }
+
+        function validatePrediction() {
+            const predictionDefault = parseFloat(document.getElementById('predictionDefault').innerText);
+            if (predictionDefault > 50) {
+                alert('Please pay your dues first.');
+                return false;
+            }
+            return true;
+        }
+
+        sliderData.forEach(createSlider);
+        updatePrediction();
+    </script>
+</body>
+</html>
