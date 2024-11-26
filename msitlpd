@@ -44,7 +44,7 @@
     <h2>Prediction Default: <span id="predictionDefault">0</span></h2>
     <div class="advice" id="advice"></div>
     <div class="wp-block-button">
-        <a id="applyButton" class="wp-block-button__link wp-element-button" href="https://www.sbfinance.com.ph/esalad-loan/" target="_blank" rel="noreferrer noopener" onclick="return validatePrediction()">APPLY</a>
+        <a id="applyButton" class="wp-block-button__link wp-element-button" href="https://techserve.paynet.io/login.html" target="_blank" rel="noreferrer noopener" onclick="return validatePrediction()">APPLY</a>
     </div>
     <script>
         const sliderData = [
@@ -114,7 +114,7 @@
                 advice = "Are you sure you have zero income and expenses? If not, slide the button to get the right prediction.";
                 applyButton.style.display = 'none';
             } else {
-                advice = "A score of 30 below means you can apply for a salary loan. File your salary loan with SB Finance. Click Apply button.";
+                advice = "A score of 30 below means you can apply for a salary loan. File your salary loan here. Click Apply button.";
                 applyButton.style.display = 'block';
             }
             document.getElementById('advice').innerText = advice;
